@@ -1,5 +1,5 @@
 import 'package:cryptomoeda/pages/home_page.dart';
-import 'package:cryptomoeda/pages/moedas_page.dart';
+
 import 'package:flutter/material.dart';
 
 class App extends StatelessWidget {

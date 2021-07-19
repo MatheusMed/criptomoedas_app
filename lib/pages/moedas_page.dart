@@ -1,8 +1,11 @@
 import 'package:cryptomoeda/models/moeda.dart';
 import 'package:cryptomoeda/pages/moedas_detalhes_page.dart';
+import 'package:cryptomoeda/provider/favorites_respository.dart';
 import 'package:cryptomoeda/repositories/moeda_repository.dart';
+import 'package:cryptomoeda/settings/app_prefrerences.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class MoedasPage extends StatefulWidget {
   MoedasPage({Key? key}) : super(key: key);
@@ -13,13 +16,51 @@ class MoedasPage extends StatefulWidget {
 
 class _MoedasPageState extends State<MoedasPage> {
   final tabela = MoedaRepository.tabela;
-  NumberFormat real = NumberFormat.currency(locale: 'pt_BR', name: 'R\$');
+  late NumberFormat real;
+  late Map<String, String> loc;
+
   List<Moeda> selecionadas = [];
+
+  limparSelecionadas() {
+    setState(() {
+      selecionadas = [];
+    });
+  }
+
+  late FavoritasRepository favoritas;
+
+  readNumberFormat() {
+    loc = context.watch<AppPrefrerences>().locale;
+    real = NumberFormat.currency(locale: loc['locale'], name: loc['name']);
+  }
+
+  changeLingButton() {
+    final locale = loc['locale'] == 'pt_BR' ? 'en_US' : 'pt_BR';
+    final name = loc['locale'] == 'pt_BR' ? '\$' : ' R\$';
+
+    return PopupMenuButton(
+      icon: Icon(Icons.language),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+            child: ListTile(
+          leading: Icon(Icons.swap_vert),
+          title: Text('Usar $locale'),
+          onTap: () {
+            context.read<AppPrefrerences>().setLocate(locale, name);
+            Navigator.pop(context);
+          },
+        )),
+      ],
+    );
+  }
 
   appBarDinamica() {
     if (selecionadas.isEmpty) {
       return AppBar(
         title: Text('Cripto Moedas'),
+        actions: [
+          changeLingButton(),
+        ],
       );
     } else {
       return AppBar(
@@ -53,11 +94,17 @@ class _MoedasPageState extends State<MoedasPage> {
 
   @override
   Widget build(BuildContext context) {
+    // favoritas = Provider.of<FavoritasRepository>(context);
+    favoritas = context.watch<FavoritasRepository>();
+    readNumberFormat();
     return Scaffold(
       appBar: appBarDinamica(),
       floatingActionButton: selecionadas.isNotEmpty
           ? FloatingActionButton.extended(
-              onPressed: () {},
+              onPressed: () {
+                favoritas.saveAll(selecionadas);
+                limparSelecionadas();
+              },
               label: Text('Favoritar'),
               backgroundColor: Colors.indigo,
               icon: Icon(Icons.favorite),
@@ -78,12 +125,24 @@ class _MoedasPageState extends State<MoedasPage> {
                     child: Image.asset(tabela[moeda].icone),
                     width: 40,
                   ),
-            title: Text(
-              tabela[moeda].nome,
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w500,
-              ),
+            title: Row(
+              children: [
+                Text(
+                  tabela[moeda].nome,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                if (favoritas.lista.contains(tabela[moeda]))
+                  Icon(
+                    Icons.star,
+                    color: Colors.yellow[300],
+                  ),
+              ],
             ),
             trailing: Text(
               real.format(tabela[moeda].preco),
