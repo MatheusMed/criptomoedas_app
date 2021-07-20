@@ -1,3 +1,4 @@
+import 'package:cryptomoeda/pages/configuracoes_page.dart';
 import 'package:cryptomoeda/pages/favorites_page.dart';
 import 'package:cryptomoeda/pages/moedas_page.dart';
 import 'package:flutter/material.dart';
@@ -33,20 +34,17 @@ class _HomePageState extends State<HomePage> {
         children: [
           MoedasPage(),
           FavoritesPage(),
+          ConfiguracoesPage(),
         ],
         onPageChanged: setPaginaAtual,
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: paginaAtual,
         items: [
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Todas'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Todas',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favoritas',
-          )
+              icon: Icon(Icons.favorite), label: 'Favoritas'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Conta'),
         ],
         onTap: (pagina) {
           pc.animateToPage(pagina,

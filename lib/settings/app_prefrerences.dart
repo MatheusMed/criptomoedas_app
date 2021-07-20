@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppPrefrerences extends ChangeNotifier {
@@ -35,7 +36,9 @@ class AppPrefrerences extends ChangeNotifier {
 
   setLocate(String local, String name) async {
     await _prefs.setString('locale', local);
+
     await _prefs.setString('name', name);
+
     await _readLocale();
   }
 }

@@ -137,7 +137,8 @@ class _MoedasPageState extends State<MoedasPage> {
                 SizedBox(
                   width: 10,
                 ),
-                if (favoritas.lista.contains(tabela[moeda]))
+                if (favoritas.lista
+                    .any((fav) => fav.sigla == tabela[moeda].sigla))
                   Icon(
                     Icons.star,
                     color: Colors.yellow[300],
