@@ -1,7 +1,10 @@
 import 'package:cryptomoeda/models/moeda.dart';
+import 'package:cryptomoeda/provider/conta_respository.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class MoedasDetalhesPage extends StatefulWidget {
   Moeda moeda;
@@ -15,12 +18,13 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
   NumberFormat real = NumberFormat.currency(locale: 'pt_BR', name: 'R\$');
   final _form = GlobalKey<FormState>();
   final _valor = TextEditingController();
-
   double quantidade = 0;
+  late ContaRespository conta;
 
-  compra() {
+  comprar() async {
     if (_form.currentState!.validate()) {
-      // salvar a compra
+      await conta.comprar(widget.moeda, double.parse(_valor.text));
+
       Navigator.pop(context);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -30,6 +34,7 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
 
   @override
   Widget build(BuildContext context) {
+    conta = Provider.of<ContaRespository>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.moeda.nome),
@@ -115,6 +120,8 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
                           return 'Informe o valor da compra';
                         } else if (double.parse(value) < 50) {
                           return 'Compra minima é  R\$  50.00';
+                        } else if (double.parse(value) > conta.saldo) {
+                          return 'Você nao tem saldo suficiente';
                         }
                         return null;
                       },
@@ -135,7 +142,7 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
                           )
                         ],
                       ),
-                      onPressed: () => compra(),
+                      onPressed: () => comprar(),
                     ),
                   ),
                 ],
